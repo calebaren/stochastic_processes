@@ -1,0 +1,347 @@
+---
+title: "Chapter 8: Brownian Motion"
+output: pdf_document
+date: '2022-05-30'
+---
+\newcommand{\Var}{\textrm{Var}}
+\newcommand{\Cov}{\textrm{Cov}}
+\newcommand{\soln}{\bf{Solution:}}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Example 8.1
+
+For $0 < s < t$, find the distribution of $B_s + B_t$.
+$$
+B_s + B_t = B_s + B_s + B_t - B_s = 2B_s + (B_t - B_s)
+$$
+
+By independent increments, $B_s$ and $B_t - B_s$ are independent random variables.
+$$
+\begin{gathered}
+E(B_s + B_t) = E(B_s) + E(B_t) = 0 \\
+\Var(B_s + B_t) = \Var(2B_s + (B_t - B_s)) = 4Var(B_s) + \Var(B_t-B_s) \\
+= 4s + t-s \\
+= 3s+t
+\end{gathered}
+$$
+
+Therefore, $B_s + B_t \sim \mathcal{N}(0, 3s+t)$.
+
+## Example 8.2
+
+If a standard Brownian motion particle is at position 1 at time 2, find the probability that the position is at most 3 at time 5.
+
+By stationary increments, $B_5 - B_2 \sim B_3$.
+$$
+P(B_5 \le 3 \mid B_2 = 1) = P(B_5 - B_2 \le 3 - B_2 \mid B_2 = 1) \\
+= P(B_5 - B_2 \le 2) \\
+= P(B_3 \le 2) = 0.876
+$$
+
+## Example 8.3
+
+Find the covariance of $B_s$ and $B_t$.
+
+$$
+\Cov(B_s, B_t) = E(B_sB_t) - E(B_s)E(B_t) = E(B_sB_t)
+$$
+
+Assuming that $s < t$:
+
+$$
+\begin{gathered}
+B_t = B_s + (B_t - B_s) \\
+E(B_sB_t) = E(B_s(B_s + (B_t - B_s))) \\
+= E(B_s^2 + B_s(B_t - B_s)) \\
+= E(B_s^2) + E(B_s(B_t-B_s)) \\
+=\Var(B_s) + E(B_s)E(B_t-B_s) \\
+=s + 0 = s
+\end{gathered}
+$$
+
+By symmetry, if $t < s$, then $\Cov(B_sB_t) = t$. In general, $\Cov(B_sB_t) = \min(s, t)$.
+
+## Example 8.4
+
+For a simple symmetric random walk, consider the maximum of the walk in the first $n$ steps. Let $g(f) = \max_{0 \le t \le 1} f(t)$.
+
+By the invariance principle, $g(S_{nt} / \sqrt{n}) \approx g(B_t)$ for large $n$. 
+
+$$
+\lim_{n\rightarrow\infty} g\left(\frac{S_{nt}} {\ \sqrt{n}}\right) =  \lim_{n \rightarrow \infty} \max_{0 \le t \le 1} \left(\frac{S_{nt}}{\sqrt{n}}\right) = \lim_{n\rightarrow\infty} \max_{0 \le k \le n}\left(\frac{S_k}{\sqrt{n}}\right)
+$$
+
+This converges to $g(B_t) = \max_{0\le t \le 1}(B_t)$ in the limit. 
+
+$$
+\begin{gathered}
+\max_{0 \le k \le n} S_k / \sqrt{n} = \max_{0\le t \le 1}(B_t) \\
+\max_{0\le k\le n} S_k = \sqrt{n} \max_{0 \le t \le 1} (B_t)
+\end{gathered}
+$$
+
+$\max_{0\le t \le 1}(B_t)$ has density $f(x) = \sqrt{2/\pi}\exp({-x^2/2})$ for $x > 0$. If $n = 10,000$ steps, the probability that a value greater than 200 is reached is:
+
+$$
+P\left(\max_{0 \le k \le n}S_k > 200\right) \\
+= P\left(\max_{0 \le k \le n}\frac{S_k}{100} > 2\right) \\
+= P\left(\max_{0 \le k \le n}\frac{S_k}{\sqrt{n}} > 2\right) \\
+= P(M > 2) = 0.0455
+$$
+
+```{r}
+# simulating a random walk with 10000 steps
+n <- 10000
+nsim <- 10000
+sim <- replicate(nsim,
+                 max(cumsum(sample(size=n, c(-1,1), replace = T))))
+
+mean(sim)
+sd(sim)
+
+sim <- replicate(nsim,
+                 ifelse(max(cumsum(sample(c(-1, 1), n, replace = T))) > 200, 1, 0))
+
+mean(sim)
+```
+
+## Example 8.5
+
+For $a>0$, let $X_t = B_{at}/\sqrt{a}$ for $t \ge 0$. Show that $X_t$ is a standard Brownian motion.
+
+The linear combination of $X_k$ for $0 \le t_1 < \dots < t_k$ is 
+
+$$
+\sum_{i=1}^k a_iX_{t_i} = \sum_{i=1}^k \frac{a_i}{\sqrt{a}}B_{at}
+$$
+
+This has a univariate Normal distribution since $B_{at}$ is a standard Brownian motion process and is thus a Gaussian process. $X_0 = 0$ since $B_0 = 0$. The mean function is:
+$$
+E(X_t) = E(B_{at} / \sqrt{a}) = 0
+$$
+
+The covariance is:
+$$
+\begin{gathered}
+\Cov(X_s, X_t) = \Cov(B_{as} / \sqrt{a}, B_{at} / \sqrt{a}) \\
+= \frac{1}{a}\Cov(B_{as}, B_{at}) \\
+= \frac1a \min(as, at) = min(s, t)
+\end{gathered}
+$$
+
+Finally, because $B_t$ is path continuous, $X_t$ is path continuous for all $a>0$.
+
+## Example 8.6
+
+Let $(X_t)_{t \ge 0}$ be a Brownian motion process started at $x=3$. Find $P(X_2 > 0)$.
+
+Write $X_t = B_t + 3$. Then,
+
+$$
+P(X_2 > 0) = P(B_2 + 3 > 0) = P(B_2 > -3) = 0.983
+$$
+
+## Example 8.7
+
+A particle moves according to Brownian motion started at $x=1$. After $t=3$ hours, the particle is at level 1.5. Find the probability that the particle reaches level 2 sometime in the next hour. 
+
+The translated process is a Brownian motion process started at $x=1.5$. The event that the translated process hits level 2 within the next hour is equal to the event that a standard Brownian motion process hits $x = 2-1.5 = 0.5$ within the next hour.
+
+$$
+P(T_{0.5} < 1) = \int_0^1 f_{T_{0.5}}(t) \, dt
+= \int_0^1 \frac{0.5}{\sqrt{2\pi t^3}} e^{-0.5^2 / 2t} \, dt = 0.617
+$$
+
+## Example 8.8
+
+A laboratory instrument takes annual temperature measurements. Measurement errors are assumed to be independent and Normally distributed. As precision decreases over time, errors are modeled as standard Brownian motion. for how many years can the lab be guaranteed that there is at least 90\% probability that errors are less than 4 degrees?
+
+Let $B_t$ be the error at time $t$. Find $t$ such that $P(M_t < 4) \ge 90\%$.
+
+$$
+0.9 \le P(M_t < 4) = 1 -P(M_t \ge 4) = 1-2P(B_t \ge 4) = 2P(B_t < 4) - 1
+$$
+
+This yields
+
+$$
+0.95 \le P(B_t < 4) = P\left(Z \le \frac{4}{\sqrt t}\right)
+$$
+
+The 95th percentile of the standard Normal distribution is 1.645:
+
+$$
+\begin{gathered}
+1.645 = \frac{4}{\sqrt{t}} \\
+t = \left(\frac{4}{1.645}\right)^2 = 5.91
+\end{gathered}
+$$
+
+## Last Even Time
+
+Flip a coin $n=10,000$ times. If heads, A pays B \$1, otherwise if tails, B pays A. Let $\tilde{L}_n$ be the last time in $n$ times that the players are tied (aka the last zero in a simple symmetric random walk on $\{0,1,\dots,n\}$). What is the distribution of $\tilde{L}_n$?
+
+```{r}
+nsim <- 5000
+n <- 10000
+simlist <- numeric(nsim)
+for (i in 1:nsim) {
+  random_walk <- c(0, cumsum(sample(c(-1,1), size = n-1, replace = T)))
+  simlist[i] = tail(which(random_walk == 0), 1)
+}
+
+hist(simlist)
+```
+
+The probability that the last zero occurs by time $tn$ for $0<t<n$ is approximately equal to the probability that the last zero for Brownian motion occurs by time $t$:
+
+$$
+P(\tilde{L}_n \le tn) \approx P(L_1 \le t) = \frac2\pi \arcsin\sqrt{t}
+$$
+
+since $P(L_t \le x) = \frac{2}{\pi} \arcsin \sqrt{\frac{x}{t}}$ for a Brownian motion on $(0, t)$.
+
+## Example 8.10
+
+Find the probability that Brownian motion with drift parameter $\mu = 0.6$ and variance $\sigma^2 = 0.25$ takes values between 1 and 3 at time $t=4$.
+
+$$
+P(1 \le X_4 \le 3) = P(1 \le 0.6(4) + \sqrt{0.25}B_4 \le 3) = P(1 \le 2.4 + 0.5B_4 \le 3) = P(-2.8 \le B_4 \le 1.2) = 0.645
+$$
+
+## Example 8.11
+
+## Brownian Bridge
+
+```{r}
+nsteps <- 1000
+nsim <- 5000
+t <- seq(0, 1, length = nsteps)
+bm <- c(0,cumsum(rnorm(nsteps-1,0,1)))/sqrt(nsteps)
+brownian_bridge <- bm - t*bm[nsteps]
+plot(t, brownian_bridge, type = "l")
+```
+
+## Mean and Variance of Geometric Brownian Motion
+
+Let $G_t = G_0 e^{X_t}$ for $t \ge 0$ and $G_0 > 0$ with drift $\mu$ and variance $\sigma^2$. Then $\ln G_t = \ln G_0 + X_t$ is distributed Normally with mean $\ln G_0 + \mu t$ and variance $\sigma^2 t$.
+
+$$
+\begin{gathered}
+E(G_t) = E(G_0 e^{X_t}) \\
+= \int_{-\infty}^\infty G_0 e^x f_{X_t}(x) dx \\
+= G_0 \int_{-\infty}^\infty \exp (x)\frac{1}{\sqrt{2\pi\sigma^2t}} \exp\left(-\frac{(x-\mu t)^2}{2\sigma^2t}\right) dx
+\end{gathered}
+$$
+
+## Simulating Geometric Brownian Motion
+
+```{r}
+g0 <- 3
+mu <- 0.4
+sigma <- 0.6
+nsim <- 10e3
+n <- 1000
+t <- seq(0, 1, length = n)
+simlist <- numeric(n)
+for (i in 1:nsim) {
+  bm <- cumsum(c(0, rnorm(n-1, 0, 1))) / sqrt(n)
+  simlist <- simlist + g0 * exp(mu * t + sigma * bm)
+}
+plot(simlist / nsim, type = "l")
+```
+
+## Example 8.15
+
+Assume XYZ stock sells for \$80 and follows a geometric Brownian motion with drift 0.10 and volatility 0.50. Find the probability that in 90 days the price of XYZ will rise to ast least $100.
+
+$$
+\begin{gathered}
+P(X_{0.25} \ge 100) = P(80e^{0.1(0.25) + 0.50B_{0.25}} \ge 100) \\
+=P (e^{0.025 + 0.50B_{0.25}} \ge 1.25) \\
+= P(0.025+0.50B_{0.25} \ge \ln1.25) \\
+= P(B_{0.25} \ge (\ln 1.25 - 0.025) / 0.5) = 0.214
+\end{gathered}
+$$
+
+# Exercises
+
+## 8.1 
+Show that
+$$
+f(x,t) = \frac{1}{\sqrt{2\pi t}} e^{-x^2 /(2t)}
+$$
+satisfies the partial differential heat equation
+$$
+\frac{\partial f}{\partial t} = \frac{1}{2}\frac{\partial^2 f}{\partial x^2} 
+$$
+
+\soln
+$$
+\frac{\partial f}{\partial t} = \frac{1}{\sqrt{2\pi}}\left(-\frac{1}{2}t^{-3/2}e^{-x^2/(2t)}+t^{-1/2} \cdot \frac{x^2}{2t^2} e^{-x^2/(2t)}\right) \\
+= \frac{1}{\sqrt{2\pi}}e^{-x^2/(2t)} \left(-\frac{1}{2t^{3/2}} + \frac{x^2}{2t^{3/2}}\right) \\
+= \frac{1}{\sqrt{2\pi}}e^{-x^2/(2t)}\frac{1}{2t^{3/2}} (x^2-1) \\
+
+\frac12 \frac{\partial^2 f}{\partial x^2} = \frac{1}{2}\frac{\partial}{\partial x}\left(\frac{\partial}{\partial x} \frac{1}{\sqrt{2 \pi t}} e^{-x^2/(2t)}\right) \\
+= \frac{1}{2}\frac{1}{\sqrt{2\pi t}} \frac{\partial}{\partial x}\left(\frac{-2x}{2t}e^{-x^2/(2t)}\right) \\
+= \frac12 \frac{1}{\sqrt{2\pi t}} \frac{-1}{t}e^{-x^2/(2t)} + -\frac{x}{t}e^{-x^2/(2t)}\cdot -\frac{x}{t}
+$$
+## 8.2
+
+For standard Brownian motion, show that
+###(a)
+P(B_2 \le 1)
+$$
+P(B_2 \le 1 ) = P(Z \sqrt2 \le 1) = 0.76
+$$
+
+```{r}
+n <- 1000
+nsim <- 5000
+
+mean(replicate(nsim, cumsum(c(0, rnorm(n-1, mean = 0, sd = sqrt(2 / n))))[1000] <= 1))
+```
+## 8.4
+```{r}
+sigma <- 0.5
+n = 500
+t <- seq(0, 0.25, length = n)
+sim <- rnorm(n-1, mean = 0, sqrt(t / n))
+```
+## 8.5
+
+Consider standard Brownian motion. Let $0 < s < t$.
+
+###(a)
+
+Find the joint density of $(B_s,B_t)$.
+
+\soln Because $\{B_s = x, B_t = y\} = \{B_s = x, B_{t-s} = y -x\}$ (which are independent events by stationary and independent increments), it follows that the joint density can be factored:
+
+$$
+f_{B_s,B_t}(x,y) = f_{B_s}(x)f_{B_{t-s}}(y-x) = \frac{1}{\sqrt{2\pi s}}\exp\left(-\frac{x^2}{2s}\right) \cdot \frac{1}{\sqrt{2\pi(t-s)}}\exp\left(-\frac{(y-x)^2}{2(t-s)}\right)
+$$
+
+### (b)
+
+Show that the conditional distribution of $B_s$ given $B_t = y$ is Normal with mean and variance $E(B_s \mid B_t = y) = \frac{sy}{t}$ and $\Var(B_s \mid B_t = y) = \frac{s(t-s)}{t}$.
+
+\soln
+$$
+\begin{gathered}
+E(B_s \mid B_t = y) = \int_{-\infty}^\infty x \frac{f_{B_s,B_t}(x,y)}{f_{B_t}(y)} dx \\
+= \frac{1}{f_{B_t}(y)}\int_{-\infty}^\infty xf_{B_s,B_t}(x,y)dx \\
+=\left[\frac{1}{\sqrt{2\pi t}} \exp \left(-\frac{y^2}{2t}\right)\right]^{-1} \int_{-\infty}^\infty x \frac{1}{\sqrt{2\pi s}}\exp\left(-\frac{x^2}{2s}\right) \cdot \frac{1}{\sqrt{2\pi(t-s)}}\exp\left(-\frac{(y-x)^2}{2(t-s)}\right) dx \\
+=  \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp\left(\frac{y^2}{2t}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2} \left(\frac{x^2}{s} + \frac{(y-x)^2}{t-s}\right)\right] dx\\
+= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp\left(\frac{y^2}{2t}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2} \left(\frac{x^2t - x^2s + y^2s - 2xys + x^2s}{s(t-s)}\right)\right] dx\\
+= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(\frac{y^2}{2t}-\frac{y^2}{2(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2} \left(\frac{x^2t - 2xys}{s(t-s)}\right)\right] dx\\
+= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(-\frac{y^2s}{2t(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x^2 - \frac{2xys}{t}+\frac{y^2s^2}{t^2} - \frac{y^2s^2}{t^2}\right)\right]dx \\
+= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(-\frac{y^2s}{2t(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x - \frac{sy}{t}\right)^2\right] \exp\left[\frac{t}{2s(t-s)} \frac{y^2s^2}{t^2})\right]dx \\
+=  \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(-\frac{y^2s}{2t(t-s)}\right)\exp\left(\frac{y^2s}{2t(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x - \frac{sy}{t}\right)^2\right] dx\\
+= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x - \frac{sy}{t}\right)^2\right] dx
+\end{gathered}
+$$
+
+This is the density of a Gaussian distribution with mean $\mu = \frac{sy}{t}$ and variance $\sigma^2 = \frac{s(t-s)}{t}$. As $s$ approaches 0, the mean goes to 0 and the variance goes to 0. As $s$ approaches $t$, the mean approaches $y$ and the variance also approaches 0.
