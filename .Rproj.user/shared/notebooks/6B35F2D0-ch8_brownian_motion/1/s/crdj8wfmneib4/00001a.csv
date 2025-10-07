@@ -1,6 +1,0 @@
-"0","mean(replicate(nsim, cumsum(c(0, rnorm(n-1, mean = 0, sd = sqrt(2 / n))))[1000] <= 1))
-"
-"1","[1]"
-"1"," 0.7656"
-"1","
-"

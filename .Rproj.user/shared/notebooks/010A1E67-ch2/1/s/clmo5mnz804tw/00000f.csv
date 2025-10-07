@@ -1,9 +1,0 @@
-"0","initial <- sample(1:3, size = 1e4, replace = T, prob = alpha)
-first <- sapply(initial, function(i) sample(1:3, size = 1, prob = pmat[i,]))
-second <- sapply(first, function(i) sample(1:3, size = 1, prob = pmat[i,]))
-mean(first == 3 & second == 1)
-"
-"1","[1]"
-"1"," 0.1321"
-"1","
-"
