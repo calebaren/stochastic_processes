@@ -266,7 +266,7 @@ P = \bordermatrix{
 }
 $$
 
-(b) Find $P(X_3 \ge 3).
+(b) Find $P(X_3 \ge 3)$.
 
 \soln
 $$
@@ -289,4 +289,94 @@ exercise_2_6()
 ## Exercise 2.7
 Let $X_0, X_1, \dots$ be a Markov chain with transition matrix $P$. Let $Y_n = X_{3n}$, for $n=0, 1, 2, \dots$. Show that $Y_0, Y_1,\dots$ is a Markov chain and exhibit its transition matrix.
 
+\soln Since $X_0, X_1, \dots$ is a Markov chain, then $P(X_{3n} = j | X_{3n-3} = i)$ is Markov by the Markov property. Therefore, $P(Y_n = j | Y_{n-1} = i)$ is Markov, with transition matrix $P^3$.
+
+## Exercise 2.8
+Give the Markov transition matrix for random walk on the weighted graph in Figure 2.10.
+
 \soln
+$$
+P = \bordermatrix{
+  & a & b & c & d & e \cr
+a & 0 & 1/6 & 1/2 & 0 & 1/3 \cr
+b & 1/10 & 1/5 & 1/5 & 1/10 & 2/5 \cr
+c & 1/2 & 1/3 & 0 & 1/6 & 0 \cr
+d & 0 & 1/2 & 1/2 & 0 & 0 \cr
+e & 1/3 & 2/3 & 0 & 0 & 0
+}
+$$
+
+## Exercise 2.9
+Give the transition matrix for the transition graph in Figure 2.11.
+
+\soln
+$$
+P = \bordermatrix{
+& a & b & c & d & e \cr
+a & 0 & 0 & 3/5 & 0 & 2/5 \cr
+b & 1/7 & 2/7 & 0 & 0 & 4/7 \cr
+c & 0 & 2/9 & 2/3 & 1/9 & 0 \cr
+d & 0 & 1 & 0 & 0 & 0 \cr
+e & 1 & 0 & 0 & 0 & 0
+}
+$$
+
+## Exercise 2.10 NOT STARTED
+
+## Exercise 2.11
+You start with five dice. Roll all the dice and put aside those dice that come up 6. Then, roll the remaining dice, putting aside those dice that come up 6. And so on. Let $X_n$ be the number of dice that are sixes are $n$ rolls.
+(a) Describe the transition matrix $P$ for this Markov chain.
+
+\soln The number of dice that are 6 is increasing for each roll. There are 0 dice that are 6s initially, and the player has 5 independent dice roll with probability 1/6 of getting a 6. In fact, if the player has seen $X_n$ face up dice, then there are $5-X_n$ trials to transition.
+$$
+X_n | X_{n-1} = X_{n-1} + D_n
+$$
+where
+$$
+D_n =  \textrm{Binom}(5-X_{n-1}, 1/6)
+$$
+
+(b) Find the probability of getting all sixes by the third play.
+
+\soln This probability is $P(X_3 = 5) = (\alpha P)_5 = [(1, 0, 0, 0, 0, 0)^T P]_5 = 0.013$
+
+```{r}
+exercise_2_11b <- function() {
+  P <- matrix(0, nrow = 6, ncol = 6)
+
+  for (i in 0:5) {
+    for (j in i:5) {
+      P[i+1, j+1] <- dbinom(j - i, size = 5 - i, prob = 1/6)
+    }
+  }
+  c(1, 0, 0, 0, 0, 0) %*% (P %^% 3)
+}
+
+exercise_2_11()
+```
+
+(c) What do you expect $P^100$ to look like? Use technology to confirm your answer.
+
+\soln As the number of rolls increases, the chance of landing a 6 for each dice almost surely converges to 1, so $P^100$ should look very much like every state transitions to 5 regardless of initial state.
+
+```{r echo=TRUE}
+exercise_2_11c <- function(n) {
+  P <- matrix(0, nrow = 6, ncol = 6)
+
+  for (i in 0:5) {
+    for (j in i:5) {
+      P[i+1, j+1] <- dbinom(j - i, size = 5 - i, prob = 1/6)
+    }
+  }
+   
+  P %^% 100
+}
+exercise_2_11c()
+```
+
+## Exercise 2.12
+Two urns contain $k$ balls each. Initially, the balls in the left urn are all red and the balls in the right urn are all blue. At each step, pick a ball at random from each urn and exchange them. Let $X_n$ be the number of balls in the left urn. (Note that necessarily $X_0 = 0$ and $X_1=1$.) Argue that the process is a Markov chain. Find the transition matrix. This model is called the Bernoulli-Laplace model of diffusion and was introduced by Daniel Bernoulli in 1769 as a model for the flow of two incompressible liquids between two containers.
+
+\soln This is a Markov chain because the probability of transitioning from one state to the next is dependent only on the current balance of red/blue balls between the two urns, not on the states that came previously. If there are $i < k$ blue balls in the left urn, then these things can happen: 1) If we draw 1 blue ball from the left urn and 1 red ball from the right, then we transition to $i-1$ blue balls. 2) If we draw 1 red ball from the left urn and 1 blue ball from the right, then we transition to $i+1$ blue balls. 3) If we draw 2 blue balls or 2 red balls from left and right, then the state stays the same.
+
+The first case happens with probability $P(X_n = i-1 | X_{n-1} = i) = \frac{i}{k} \cdot \frac{(k-i)}{k} = \frac{i(k-1)}{k^2}$. The second case happens by symmetry with the same probability. The third case happens with probability $P(X_n = i | X_{n-1} = i) = \frac{i^2}{k^2} + \frac{(k-i)^2}{k^2} = \frac{i^2+k^2 - 2ik + i^2}{k^2} = 1-\frac{2i(k-i)}{k^2}$. At the boundaries, $P(X_n = 1 | X_{n-1} =0) = 1$ and $P(X_n=k-1 | X_{n-1} = k) = 1$
