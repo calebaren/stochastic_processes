@@ -428,6 +428,113 @@ E(B_s|B_t=y) = \frac{sy}{t} \quad\text{and} \, \Var(B_s|B_t=y)=\frac{s(t-s)}{t}
 $$
 
 \soln Because $(B_s, B_t)$ is a bivariate Normal random variable, it follows that the conditional distribution $B_s|B_t=y$ is Normal. We can rewrite $B_t = B_s + (B_t-B_s)$, and setting $B_s = x$, we have:
+
 $$
-f_{B_s | B_t = y}(x | y) = \frac{f_{B_s,B_t}(x,y)}{f_{B_t=y}(y)}
+\begin{gathered}
+f_{B_s|B_t}(x|y) = \frac{f_{B_t|B_s}(y|x)f_{B_s}(x)}{f_{B_t}(y)} \\
+= \frac{\sqrt{2\pi t}}{\sqrt{2\pi(t-s)} \cdot \sqrt{2\pi s}} \cdot  \exp\left(-\frac{(y-x)^2}{2(t-s)}  -\frac{x^2}{2s} + \frac{y^2}{2t}\right) \\
+= \frac{1}{\sqrt{2 \pi s(t-s)/t}} \cdot \exp \left(-\frac{st(y^2-2xy+x^2)+t(t-s)x^2-s(t-s)y^2}{2st(t-s)}\right) \\
+= \frac{1}{\sqrt{2 \pi s(t-s)/t}} \cdot \exp \left(-\frac{sty^2-2stxy+stx^2+t^2x^2-stx^2-sty^2+s^2y^2}{2st(t-s)}\right) \\
+= \frac{1}{\sqrt{2 \pi s(t-s)/t}} \cdot \exp \left(-\frac{t^2x^2-2stxy+s^2y^2}{2st(t-s)}\right) \\
+= \frac{1}{\sqrt{2 \pi s(t-s)/t}} \cdot \exp \left(-\frac{(tx-sy)^2}{2st(t-s)}\right) \\
+= \frac{1}{\sqrt{2 \pi s(t-s)/t}} \cdot \exp \left(-\frac{(x-\frac{s}{t}y)^2}{2s(t-s)/t}\right)
+\end{gathered}
 $$
+This corresponds to the density for a Normal random variable with mean $\frac{sy}{t}$ and standard deviation $\frac{s}{t}(t-s)$.
+
+## Exercise 8.6
+For $s > 0$, show that the translation $(B_{t+s} - B_s)_{t\ge0}$ is a standard Brownian motion.
+
+\soln To show that $X_t = (B_{t+s} - B_s)_{t\ge0}$ is a standard Brownian motion, we must show the initial value $X_0 = 0$, the mean function is $0$ for all $t$, the covariance between any 2 times $s$ and $t$ is min$(s,t)$, and the function is continuous with probability 1.
+
+Initial value: $X_0 = B_{0+s}-B_s = B_s - B_s = 0$.
+
+Mean function: 
+$$
+E(X_t) = E(B_{t+s} - B_s) = E(B_{t+s}) - E(B_s) = 0 - 0 = 0
+$$
+
+Covariance function: Let $0 < t < u$.
+$$
+\Cov(X_t,X_u) = \Cov(B_{t+s} - B_s, B_{u+s}-B_s) \\
+= \Cov(B_{t+s},B_{u+s})-\Cov(B_{t+s},B_{s})-\Cov(B_s,B_{u+s})+\Cov(B_s,B_s) \\
+= \min(t+s,u+s) - \min(t+s, s) - \min(s, u+s) + s \\
+= (t+s)- (s) - (s) + (s) \\
+= t = \min(t,u)
+$$
+
+Continuity: The last condition is true because the difference of 2 functions that are almost surely continuous is also almost surely continuous.
+
+As all of the conditions are met, $X_t$ is a standard Brownian motion process.
+
+## Exercise 8.7
+Show that the reflection $(-B_t)_{t\ge0}$ is a standard Brownian motion.
+
+\soln Let $X_t = -B_t$ for $t \ge 0$.
+
+Initial value: $X_0 = -B_0 = 0$.
+
+Mean value: $E(X_t) = E(-B_t) = -E(B_t) = 0$.
+
+Covariance function: Let $0 < s < t$. $\Cov(X_s,X_t) = \Cov(-B_s,-B_t) = \Cov(B_s,B_t) = \min(s,t)$.
+
+Continuity: Continuity is inherited by inspection.
+
+As all of the conditions are met, $X_t$ is a standard Brownian motion process.
+
+## Exercise 8.8
+Find the covariance function for Brownian motion with drift.
+
+\soln Let $X_t = \mu t + \sigma B_t$. Let $0<s<t$. The covariance function is:
+$$
+\begin{aligned}
+\Cov(X_s,X_t) &= \Cov(\mu s + \sigma B_s, \mu t + \sigma B_t \\
+&= \Cov(\sigma B_s,\sigma B_t) \\
+&= \sigma^2 \Cov(B_s, B_t) \\
+&= \sigma^2 s
+\end{aligned}
+$$
+
+## Exercise 8.9
+Let $W_t = B_{2t} - B_t$, for $t \ge 0$.
+
+(a) Is $(W_t)_{t\ge0}$ a Gaussian process?
+
+\soln $W_t$ is a Gaussian process as $B_{2t}$ and $B_t$ are both Gaussian processes, and the difference of two Gaussian processes is Gaussian. We can see that at each time $t$, $B_{2t}$ and $B_t$ are distributed Normal, so $W_t$ is Normal at each time $t$.
+
+(b) Is $(W_t)_{t\ge0}$ a Brownian motion process?
+
+\soln $W_t$ is not a Brownian motion process. We look at the covariance function:
+$$
+\begin{aligned}
+\Cov(W_s,W_t) &= \Cov(B_{2s}-B_s,B_{2t}-B_t) \\
+&= \Cov(B_{2s},B_{2t}) - \Cov(B_{s},B_{2t}) - \Cov(B_{2s},B_{t}) + \Cov(B_{s},B_{t}) \\
+&= 2\min(s,t) - \min(s,2t) - \min(2s,t) + \min(s,t) \\
+&= 3 \min(s,t) - \min(s,2t) - \min(2s,t)
+\end{aligned}
+$$
+
+This expression cannot be further simplified, and does not collapse to $\min(s,t)$ unless $s = t$. This is not standard Brownian motion.
+
+## Exercise 8.10
+Let $(B_t)_{t\ge0}$ be a Brownian motion started in $x$. Let
+$$
+X_t = B_t - t(B_1-y),\textrm{ for }0\le t \le 1
+$$
+The process $(X_t)_{t\ge0}$ is a Brownian bridge with start in $x$ and end in $y$. Find the mean and covariance functions.
+
+\soln The mean function is $E(X_t) = E(B_t - t(B_1-y)) = E(B_t) - tE(B_1) + ty = x - tx + ty = (1-t)x + ty$. The mean varies linearly between $x$ and $y$ over the interval $0 \le t \le 1$.
+
+The covariance function is:
+$$
+\begin{aligned}
+\Cov(X_s,X_t) &= \Cov(B_s-s(B_1-y), B_t-t(B_1-y)) \\
+&= \Cov(B_s,B_t) + \Cov(B_s,-t(B_1-y)) + \Cov(-s(B_1-y),B_t) + \Cov(-s(B_1-y), -t(B_1-y)) \\
+&= \Cov(B_s,B_t) + \Cov(B_s,-tB_1) + \Cov(-sB_1,B_t) + \Cov(-sB_1,-tB_1) \\
+&= \min(s,t) -ts - st + st \\
+&= \min(s,t) - st
+\end{aligned}
+$$
+
+When $s,t$ are both small, then the covariance looks similar to standard Brownian motion. This is akin to the process just starting out, and the influence of the correction term is small. As $s,t$ grow, then the covariance is reduced as the bridge term contributes more as time progresses.
+
