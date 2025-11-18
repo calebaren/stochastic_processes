@@ -5,11 +5,23 @@ date: '2022-05-30'
 ---
 \newcommand{\Var}{\textrm{Var}}
 \newcommand{\Cov}{\textrm{Cov}}
-\newcommand{\soln}{\bf{Solution:}}
+\newcommand{\soln}{\textbf{Solution:}}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r brownian, eval=FALSE, include=FALSE}
+wiener_process <- function(t) {
+  # time t
+  # steps n
+  n <- 1000
+  bm <- c(0, cumsum(rnorm(n, 0, sqrt(t/n))))
+  steps <- seq(0,t,length = n+1)
+  bm
+}
+```
+
+# Examples
 ## Example 8.1
 
 For $0 < s < t$, find the distribution of $B_s + B_t$.
@@ -268,7 +280,7 @@ $$
 
 # Exercises
 
-## 8.1 
+## Exercise 8.1
 Show that
 $$
 f(x,t) = \frac{1}{\sqrt{2\pi t}} e^{-x^2 /(2t)}
@@ -278,70 +290,144 @@ $$
 \frac{\partial f}{\partial t} = \frac{1}{2}\frac{\partial^2 f}{\partial x^2} 
 $$
 
+\soln Examining the first-order time partial differential:
+$$
+\begin{aligned}
+\frac{\partial f}{\partial t} &= \frac{\partial}{\partial t} \frac{1}{\sqrt{2 \pi t}} \exp\left(-\frac{x^2}{2t}\right) \\
+&= \frac{1}{\sqrt{2\pi t}} \frac{\partial}{\partial t} \exp\left(-\frac{x^2}{2t}\right) + \exp\left(-\frac{x^2}{2t}\right) \frac{\partial}{\partial t} \frac{1}{\sqrt{2 \pi t}} \\
+&= \frac{1}{\sqrt{2 \pi t}} \frac{-x^2}{2} \frac{-1}{t^2} \exp\left(-\frac{x^2}{2t}\right) + \exp\left(-\frac{x^2}{2t}\right) \frac{1}{\sqrt{2\pi}}\frac{-1}{2}{t^{-3/2}}
+\\
+&= \frac{1}{\sqrt{2\pi t}}\exp\left(-\frac{x^2}{2t}\right)\left[ \frac{x^2}{2t^2} -\frac{1}{2t}\right] \\
+&= \frac{1}{2} \frac{1}{\sqrt{2\pi t}} \exp\left(-\frac{x^2}{2t}\right)\left[ \frac{x^2}{t^2} -\frac{1}{t}\right]
+\end{aligned}
+$$
+
+The right side, which includes a second-order in $x$ term:
+$$
+\begin{aligned}
+\frac{1}{2}\frac{\partial^2 f}{\partial x^2} &= \frac{1}{2} \frac{\partial^2}{\partial x^2} \frac{1}{\sqrt{2 \pi t}} \exp\left(-\frac{x^2}{2t}\right) \\
+&= \frac{1}{2} \frac{1}{\sqrt{2 \pi t}} \frac{\partial^2}{\partial x^2} \exp\left(-\frac{x^2}{2t}\right) \\
+&= \frac{1}{2} \frac{1}{\sqrt{2 \pi t}} \frac{\partial}{\partial x} \frac{-2x}{2t}\exp\left(-\frac{x^2}{2t}\right) \\
+&= \frac{1}{2} \frac{1}{\sqrt{2 \pi t}} \left[ \exp\left(-\frac{x^2}{2t}\right)\frac{\partial}{\partial x} \frac{-x}{t} -\frac{x}{t} \frac{\partial}{\partial x} \exp\left(-\frac{x^2}{2t}\right)\right] \\
+&= \frac{1}{2}\frac{1}{\sqrt{2\pi t}} \left[-\frac{1}{t} \exp\left(-\frac{x^2}{2t}\right) + \frac{x^2}{t^2}\exp\left(-\frac{x^2}{2t}\right)\right] \\
+&= \frac{1}{2} \frac{1}{\sqrt{2 \pi t}} \exp\left(-\frac{x^2}{2t}\right)\left[\frac{x^2}{t^2}-\frac{1}{t}\right]
+\end{aligned}
+$$
+These two sides are equal, thus $f(x,t)$ satisfies the heat equation.
+
+## Exercise 8.2
+For standard Brownian motion, find
+(a) $P(B_2 \le 1)$
+
+\soln $B_2$ is distributed Normal with mean 0 and variance 2, so $P(B_2 \le 1)$ = $\Phi\left(\frac{1}{\sqrt2}\right) \approx 0.760$
+
+(b) $E(B_4 | B_1 = x)$
+
+\soln By independent increments, $B_4-B_1$ and $B_1$ are independent random variables. By stationary increments, $B_4-B_1$ is distributed the same as $B_3$.
+
+$$
+E(B_4 | B_1 = x) = E(B_4-B_1 | B_1=x) +E(B_1|B_1=x) \\
+= E(B_3) + x \\
+= x
+$$
+(c) Corr$(B_{t+s},B_s)$
+
 \soln
 $$
-\frac{\partial f}{\partial t} = \frac{1}{\sqrt{2\pi}}\left(-\frac{1}{2}t^{-3/2}e^{-x^2/(2t)}+t^{-1/2} \cdot \frac{x^2}{2t^2} e^{-x^2/(2t)}\right) \\
-= \frac{1}{\sqrt{2\pi}}e^{-x^2/(2t)} \left(-\frac{1}{2t^{3/2}} + \frac{x^2}{2t^{3/2}}\right) \\
-= \frac{1}{\sqrt{2\pi}}e^{-x^2/(2t)}\frac{1}{2t^{3/2}} (x^2-1) \\
-
-\frac12 \frac{\partial^2 f}{\partial x^2} = \frac{1}{2}\frac{\partial}{\partial x}\left(\frac{\partial}{\partial x} \frac{1}{\sqrt{2 \pi t}} e^{-x^2/(2t)}\right) \\
-= \frac{1}{2}\frac{1}{\sqrt{2\pi t}} \frac{\partial}{\partial x}\left(\frac{-2x}{2t}e^{-x^2/(2t)}\right) \\
-= \frac12 \frac{1}{\sqrt{2\pi t}} \frac{-1}{t}e^{-x^2/(2t)} + -\frac{x}{t}e^{-x^2/(2t)}\cdot -\frac{x}{t}
+\rm{Corr}(B_{t+s},B_s) = \frac{\rm{Cov}(B_{t+s},B_s)}{\sigma_{B_{t+s}} \sigma_{B_{s}}} = \frac{s}{\sqrt{t+s}\sqrt{s}} = \sqrt{\frac{s}{t+s}}
 $$
-## 8.2
+(d) \Var$(B_4|B_1)$
 
-For standard Brownian motion, show that
-###(a)
-P(B_2 \le 1)
+\soln Let $X$ be the process from $t = 1$ to $4$. By stationary increments, $X = B_4 - B_1$ has the same distribution as $B_3$ and by independent increments, is uncorrelated with $B_1$.
 $$
-P(B_2 \le 1 ) = P(Z \sqrt2 \le 1) = 0.76
+\rm{Var}(B_4|B_1) = \rm{Var}(B_1 + X| B_1) =0 + \rm{Var}(X) = 3
+$$
+(e) $P(B_3 \le 5|B_1=2)$
+
+\soln By the Markov property, the Wiener process restarts at $t=1$. Thus, we can calculate the unconditional probability for the event $W_2 \le 3$, where $W$ is a standard Wiener process.
+$$
+P(B_3 \le 5|B_1=2) = P(W_2 \le 3) = \Phi\left(\frac{3}{\sqrt{2}}\right)
 $$
 
-```{r}
-n <- 1000
-nsim <- 5000
+## Exercise 8.3
+For standard Brownian motion started at $x = -3$, find
+(a) $P(X_1+X_2 >-1)$
 
-mean(replicate(nsim, cumsum(c(0, rnorm(n-1, mean = 0, sd = sqrt(2 / n))))[1000] <= 1))
-```
-## 8.4
-```{r}
-sigma <- 0.5
-n = 500
-t <- seq(0, 0.25, length = n)
-sim <- rnorm(n-1, mean = 0, sqrt(t / n))
-```
-## 8.5
+\soln Consider the process $X_t$, where $t > 0$. This is distributed equal to a standard Brownian motion process but shifted down by $3$, so $X_t = B_t - 3$. Then, we can rewrite $X_2$ as $B_2 - 3$ which is distributed $(B_2-B_1) + B_1 - 3$.
+
+$$
+P(X_1 + X_2 > -1) = P(B_1 - 3 + (B_2-B_1)+B_1 - 3 > -1) = P(2B_1 + (B_2-B_1) - 6 > -1) \\
+= P(2B_1 + (B_2-B_1) > 5)
+$$
+
+By stationary intervals, $(B_2-B_1)$ is distributed Gaussian with variance 1. $2B_1 + (B_2-B_1)$ is distributed $2X+Y$, where $X$ and $Y$ are both standard Normal random variables, so $2B_1 + (B_2-B_1) \sim \mathcal{N}(0, 5)$. Therefore, $P(X_1+X_2 >-1) = 1 - \Phi(\sqrt{5})$, which is approximately 0.013.
+
+(b) The conditional density of $X_2$ given $X_1=0$
+
+\soln $X_2$ is distributed like $X_1 + B_1$ by stationary and independent increments, so we have:
+$$
+X_2 | X_1 = 0 \\
+\Rightarrow X_1 + B_1 | X_1 = 0 \\
+\Rightarrow B_1
+$$
+
+The conditional density of $X_2 \mid X_1 = 0$ is a standard Normal with variance 1. Intuitively, this makes sense. By independent increments, the process on the interval $t=1$ to $t=2$ is a new Brownian motion process restarted at the origin.
+
+(c) Cov$(X_3,X_4)$
+
+\soln 
+$$
+\rm{Cov}(X_3, X_4) = \rm{Cov}(B_3 -3 , B_4 - 4) = \rm{Cov}(B_3, B_4) = 3
+$$
+
+(d) $E(X_4|X_1)$
+
+\soln By independence and stationary increments, $X_4$ is distributed $X_1 + B_3$.
+$$
+E(X_4 | X_1) = E(X_1|X_1) + E(B_3) = X_1 + 0 = X_1
+$$
+
+Intuitively, the most recent information we have at $t=4$ is the value of the process at $t=1$. The process restarts at $t=1$, so the conditional expectation is the given value $X_1$. This is in line with the process's martingale property.
+
+## Exercise 8.4
+In a race between Lisa and Cooper, let $X_t$ denote the amount of time (in seconds) by which Lisa is ahead when $100t$ percent of the race has been completed. Assume that $(X_t)_{0\le t \le 1}$ can be modeled by a Brownian motion with drift parameter 0 and variance parameter $\sigma^2$. If Lisa is leading by $\sigma / 2$ seconds after three-fourths of the race is complete, what is the probability that she is the winner?
+
+\soln The desired probability is $P(X_1 \ge 0 | X_{0.75} = \sigma / 2)$. The race process can be rewritten as $X_1 = (X_1 - X_{0.75}) + X_{0.75}$. By stationary increments, $X_1 - X_{0.75} \sim \sigma B_{0.25}$ and by independent increments, is uncorrelated with the process $X_{0.75}$.
+
+$$
+\begin{aligned}
+P(X_1 \ge 0 | X_{0.75} = \sigma / 2) &= P((X_1 - X_{0.75}) + X_{0.75} > 0 | X_{0.75} = \sigma/2) \\
+&= P(\sigma B_{0.25} + X_{0.75} > 0 | X_{0.75} = \sigma / 2) \\
+&= P(\sigma B_{0.25} + \sigma / 2 > 0) \\
+&= P(B_{0.25} > -1/2) \\
+&= P(1/2 \cdot Z > -1/2) \\
+&= 1 - \Phi(-1) \\
+&= \Phi(1)
+\end{aligned}
+$$
+
+This is approximately 0.841.
+
+## Exercise 8.5
 
 Consider standard Brownian motion. Let $0 < s < t$.
 
-###(a)
+(a) Find the joint density of $(B_s,B_t)$
 
-Find the joint density of $(B_s,B_t)$.
-
-\soln Because $\{B_s = x, B_t = y\} = \{B_s = x, B_{t-s} = y -x\}$ (which are independent events by stationary and independent increments), it follows that the joint density can be factored:
-
+\soln Because $B_t$ is a standard Brownian motion process, $B_s$ and $B_t$ have a multivariate Normal distribution. $\vec\mu = (0, 0)^T$ and the covariance matrix is:
 $$
-f_{B_s,B_t}(x,y) = f_{B_s}(x)f_{B_{t-s}}(y-x) = \frac{1}{\sqrt{2\pi s}}\exp\left(-\frac{x^2}{2s}\right) \cdot \frac{1}{\sqrt{2\pi(t-s)}}\exp\left(-\frac{(y-x)^2}{2(t-s)}\right)
-$$
-
-### (b)
-
-Show that the conditional distribution of $B_s$ given $B_t = y$ is Normal with mean and variance $E(B_s \mid B_t = y) = \frac{sy}{t}$ and $\Var(B_s \mid B_t = y) = \frac{s(t-s)}{t}$.
-
-\soln
-$$
-\begin{gathered}
-E(B_s \mid B_t = y) = \int_{-\infty}^\infty x \frac{f_{B_s,B_t}(x,y)}{f_{B_t}(y)} dx \\
-= \frac{1}{f_{B_t}(y)}\int_{-\infty}^\infty xf_{B_s,B_t}(x,y)dx \\
-=\left[\frac{1}{\sqrt{2\pi t}} \exp \left(-\frac{y^2}{2t}\right)\right]^{-1} \int_{-\infty}^\infty x \frac{1}{\sqrt{2\pi s}}\exp\left(-\frac{x^2}{2s}\right) \cdot \frac{1}{\sqrt{2\pi(t-s)}}\exp\left(-\frac{(y-x)^2}{2(t-s)}\right) dx \\
-=  \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp\left(\frac{y^2}{2t}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2} \left(\frac{x^2}{s} + \frac{(y-x)^2}{t-s}\right)\right] dx\\
-= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp\left(\frac{y^2}{2t}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2} \left(\frac{x^2t - x^2s + y^2s - 2xys + x^2s}{s(t-s)}\right)\right] dx\\
-= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(\frac{y^2}{2t}-\frac{y^2}{2(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2} \left(\frac{x^2t - 2xys}{s(t-s)}\right)\right] dx\\
-= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(-\frac{y^2s}{2t(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x^2 - \frac{2xys}{t}+\frac{y^2s^2}{t^2} - \frac{y^2s^2}{t^2}\right)\right]dx \\
-= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(-\frac{y^2s}{2t(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x - \frac{sy}{t}\right)^2\right] \exp\left[\frac{t}{2s(t-s)} \frac{y^2s^2}{t^2})\right]dx \\
-=  \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \exp \left(-\frac{y^2s}{2t(t-s)}\right)\exp\left(\frac{y^2s}{2t(t-s)}\right) \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x - \frac{sy}{t}\right)^2\right] dx\\
-= \frac{1}{\sqrt{2\pi}\sqrt{s(t-s)/t}} \int_{-\infty}^\infty x \exp\left[-\frac{1}{2s(t-s)/t}\left(x - \frac{sy}{t}\right)^2\right] dx
-\end{gathered}
+\Cov(B_s,B_t) = \begin{bmatrix}
+s & s \\
+s & t
+\end{bmatrix}
 $$
 
-This is the density of a Gaussian distribution with mean $\mu = \frac{sy}{t}$ and variance $\sigma^2 = \frac{s(t-s)}{t}$. As $s$ approaches 0, the mean goes to 0 and the variance goes to 0. As $s$ approaches $t$, the mean approaches $y$ and the variance also approaches 0.
+(b) Show that the conditional distribution of $B_s$ given $B_t = y$ is Normal, with mean and variance
+$$
+E(B_s|B_t=y) = \frac{sy}{t} \quad\text{and} \, \Var(B_s|B_t=y)=\frac{s(t-s)}{t}
+$$
+
+\soln Because $(B_s, B_t)$ is a bivariate Normal random variable, it follows that the conditional distribution $B_s|B_t=y$ is Normal. We can rewrite $B_t = B_s + (B_t-B_s)$, and setting $B_s = x$, we have:
+$$
+f_{B_s | B_t = y}(x | y) = \frac{f_{B_s,B_t}(x,y)}{f_{B_t=y}(y)}
+$$

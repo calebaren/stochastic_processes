@@ -1,0 +1,39 @@
+---
+title: "Chapter 4"
+author: "calebren"
+date: "2025-10-14"
+output: pdf_document
+---
+\newcommand{\Var}{\textrm{Var}}
+\newcommand{\Cov}{\textrm{Cov}}
+\newcommand{\soln}{\textbf{Solution:}}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE, include = FALSE)
+```
+
+# Exercises
+## Exercise 4.1
+Consider a branching process with offspring distribution $\vec a = (a,b,c)$, where $a+b+c=1$. Let $P$ be the Markov transition matrix. Exhibit the first three rows of $P$. That is, find $P_{ij}$ for $i=0,1,2$ and $j=0,1,\dots$.
+
+\soln Since 0 is an absorbing state, it can only transition to 0. For $i=0$, $P_{0j} = 0$ for all $j\ne 0$ and $P_{00} = 1$.
+
+For $i=1$, the only individual in the generation can transition to $j=0,1,2$ with distribution $\vec a$, so
+$$
+P_{1j} = \begin{cases}
+a & \textrm{for }j = 0 \\
+b & \textrm{for }j = 1 \\
+c & \textrm{for }j = 2 \\
+0 & \textrm{otherwise}
+\end{cases}
+$$
+
+For $i=2$, we can condition on the outcomes of each individual.
+$$
+P_{2j} = \begin{cases}
+a^2 & \textrm{for }j = 0 \\
+2ab & \textrm{for }j = 1 \\
+2ab+c^2 & \textrm{for }j = 2 \\
+2bc+ & \textrm{for }j = 3 \\
+\end{cases}
+$$
