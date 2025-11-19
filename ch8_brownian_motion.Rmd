@@ -538,3 +538,103 @@ $$
 
 When $s,t$ are both small, then the covariance looks similar to standard Brownian motion. This is akin to the process just starting out, and the influence of the correction term is small. As $s,t$ grow, then the covariance is reduced as the bridge term contributes more as time progresses.
 
+## Exercise 8.11
+A standard Brownian motion crosses the $t$-axis at times $t=2$ and $t=5$. Find the probability that the process exceeds level $x=1$ at time $t = 4$.
+
+\soln Due to the Markov property and by shifting the process, the event $\{B_4 > 1 | B_2 = 0, B_5 = 0\}$ is equivalent to $\{W_2 > 1\}$, where $W_t = B_t - \frac{t}{3}B_3$ is a Brownian bridge with ends tied down to 0 and $0 \le t \le 3$. The mean of this process is 0, and at each time $t$, the variance is:
+$$
+\begin{aligned}
+\Var(W_t) &= \Var\left(B_t-\frac{t}{3}B_3\right) \\
+&= \Var(B_t) + \frac{t^2}{9}\Var(B_3) - 2\cdot \frac{t}{3}\Cov(B_t,B_3) \\
+&= t + \frac{3t^2}{9} - \frac{2t^2}{3} \\
+&= t-\frac{t^2}{3} \\
+&= t\left(1-\frac{t}{3}\right)
+\end{aligned}
+$$
+
+So at time $t=2$, $W_2 \sim \mathcal{N}\left(0, 2\left(1-\frac{2}{3}\right)\right)$. The standard deviation is $\sqrt{2/3}$, so:
+$$
+P(W_2 > 1) = 1 - \Phi\left(\frac{1}{\sqrt{2/3}}\right) = 1 - \Phi\left(\sqrt{\frac32}\right) \approx 0.110
+$$
+
+```{r exercise_11, eval=FALSE, include=FALSE}
+exercise_11 <- function() {
+  # brownian bridge:
+  bm <- wiener_process(3)
+  ts <- seq(0, 3, length = 1001)
+  brownian_bridge <- bm - ts / 3 * bm[length(ts)]
+  idx <- length(ts)*2/3 # pluck the t=2
+  brownian_bridge[idx] > 1
+}
+
+mean(replicate(1000, exercise_11()))
+1- pnorm(sqrt(3/2))
+```
+
+## Exercise 8.12
+Show that Brownian motion with drift has independent and stationary increments.
+
+\soln Let $X_t = \mu t + \sigma B_t$ be the drift process.
+
+Stationary increments: We show that for all $s,t > 0$, $X_{t+s}-X_s$ has the same distribution as $X_t$.
+$$
+\begin{aligned}
+X_{t+s}-X_s &= \mu(t+s) + \sigma B_{t+s} - \left[\mu s + \sigma B_s\right] \\
+&= \mu t + \sigma (B_{t+s}-B_s) \\
+&= \mu t + \sigma B_t
+\end{aligned}
+$$
+The last equality is a property of standard Brownian motion. This is the same distribution as $X_t$, so the drift process exhibits stationary increments.
+
+Independent increments: We show that for $0 \le q < r \le s < t$, $X_t - X_s$ and $X_r-X_q$ are independent random variables.
+$$
+\begin{aligned}
+\Cov(X_t-X_s, X_r-X_q) &= \Cov(X_t,X_r) - \Cov(X_s,X_r) - \Cov(X_t,X_q) + \Cov(X_s,X_q) \\
+&= \sigma^2 \left[ \min(t,r) - \min(s,r) - \min(t,q) + \min(s,q)\right] \\
+&= \sigma^2 \left[ r - r - q +q\right] \\
+&= 0
+\end{aligned}
+$$
+Each non-overlapping interval is uncorrelated, so the drift process exhibits independent increments.
+
+## Exercise 8.13
+Let $(X_t)_{t\ge0}$ denote a Brownian motion with drift $\mu$ and variance $\sigma^2$. For $0<s<t$, find $E(X_sX_t)$.
+
+\soln By definition, $\Cov(X_s,X_t) = E(X_sX_t)-E(X_s)E(X_t)$, so $E(X_sX_t) = \Cov(X_s,X_t) + E(X_s)E(X_t) = \sigma^2 \min(s,t) + (\mu t)(\mu s) = \sigma^2 s + \mu^2 st = s(\sigma^2s + \mu^2 t)$.
+
+## Exercise 8.14
+A Brownian motion with drift parameter $\mu = -1$ and variance $\sigma^2 = 4$ starts at $x=1.5$. Find the probability that the process is positive at $t=3$.
+
+\soln Let $X_t = -t + 2 B_t + 1.5$, where $B_t$ is a standard Brownian motion started at the origin. This corresponds to the drift process in the problem statement.
+$$
+P(X_3 > 0) = P(-3 + 2B_3+1.5 > 0) = P(2B_3 > 3-1.5) = P\left(B_3 > \frac{3}{4}\right)
+$$
+Because $B_3 \sim \sqrt{3} Z$, this probability is $1-\Phi\left(\frac{3}{4\sqrt{3}}\right) = \Phi\left(-\frac{\sqrt{3}}{4}\right) \approx 0.097$.
+
+```{r exercise_14, eval=FALSE, include=FALSE}
+exercise_14 <- function() {
+  bm <- wiener_process(3)
+  ts <- seq(0, 3, length = 1001)
+  drift_process <- 2 * (bm) + 1.5 - 1 * ts
+  drift_process[length(ts)] > 0
+}
+
+mean(replicate(10000, exercise_14()) > 0)
+```
+
+## Exercise 8.15
+
+See Example 8.11 on using Brownian motion to model the home team advantage in basketball. In Stern (1994), Table 8.3 is given based on the outcomes of 493 basketball games played in 1992.
+
+| Quarter 	| Variable          	| Mean 	| Standard Deviation 	|   	|
+|---------	|-------------------	|------	|--------------------	|---	|
+| 1       	| $X_{0.25}$        	| 1.41 	| 7.58               	|   	|
+| 2       	| $X_0.50 - X_0.25$ 	| 1.57 	| 7.40               	|   	|
+| 3       	| $X_0.75 - X_0.50$ 	| 1.51 	| 7.30               	|   	|
+| 4       	| $X_1-X_0.75$      	| 0.22 	| 6.99               	|   	|
+
+Here, $X_t$ is the difference between the home team's score and the visiting team's score after $t(100)$ percent of the game is played. The data show the mean and standard deviation of those differences at the end of each quarter. Why might the data support the use of a Brownian motion model? What aspects of the data give reason to doubt the Brownian motion model?
+
+\soln A process is Brownian motion iff there is 0 initial value, independent increments, Gaussian increments, and almost-surely continuous paths.
+
+That the paths are almost surely continuous is trivial. It's also reasonable to assume that the initial value is 0, due to the rules of basketball. However, each quarter does not have 0 mean, which violates one of the Gaussian increment conditions. Nor does it seem that each quarter is iid Normal, as the final quarter has a lower mean than the other quarters. The non-zero mean at each quarter might be an artifact of the data, but 
