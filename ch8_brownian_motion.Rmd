@@ -637,4 +637,182 @@ Here, $X_t$ is the difference between the home team's score and the visiting tea
 
 \soln A process is Brownian motion iff there is 0 initial value, independent increments, Gaussian increments, and almost-surely continuous paths.
 
-That the paths are almost surely continuous is trivial. It's also reasonable to assume that the initial value is 0, due to the rules of basketball. However, each quarter does not have 0 mean, which violates one of the Gaussian increment conditions. Nor does it seem that each quarter is iid Normal, as the final quarter has a lower mean than the other quarters. The non-zero mean at each quarter might be an artifact of the data, but 
+That the paths are almost surely continuous is trivial. It's also reasonable to assume that the initial value is 0, due to the rules of basketball. However, the fourth quarter mean differs from the other quarters, which suggests that this is not a Brownian motion process, even with drift.
+
+## Exercise 8.16
+
+Let $(X_t)_{t\ge 0}$ and $(Y_t)_{t \ge 0}$ be independent, standard Brownian motions. Show that $Z_t = a(X_t-Y_t)$ defines a standard Brownian motion for some $a$. Find $a$.
+
+\soln Since the difference of a.s. continuous paths is also almost surely continuous, the process $Z_t$ is a.s. continuous. The mean function is also 0 since the linear combination of Gaussian r.v.s is Gaussian. Letting $0 < s < t$, the covariance function is:
+$$
+\begin{aligned}
+\Cov(Z_s, Z_t) &= \Cov(a(X_s-Y_s),a(X_t-Y_t) \\
+&= a^2[\Cov(X_s,X_t) - \Cov(X_s,Y_t) - \Cov(Y_s,X_t) + \Cov(Y_s,Y_t)] \\
+&= a^2[\min(s,t) + \min(s,t)] \\
+&= 2a^2\min(s,t)
+\end{aligned}
+$$
+
+If $a = \pm1/\sqrt{2}$, then the covariance function is $\min(s,t)$.
+
+## Exercise 8.17
+
+For $a > 0$, show that for standard Brownian motion the first hitting time $T_a$ has the same distribution as $1/X^2$, where $X$ is a normal random variable with mean 0 and variance $1/a^2$.
+
+\soln Let $T_a = 1/X^2$. The CDF is:
+$$
+P(T_a \le t) = P(1/X^2 \le t) \\
+= P(X^2 \ge 1/t) \\
+= P(X \ge t^{-1/2}) + P(X \le -t^{-1/2}) \\
+= 2P(X \le -t^{-1/2})
+$$
+Differentiating with respect to $t$:
+$$
+\begin{aligned}
+P(T_a = t) &= \frac{d}{dt} 2P(X \le -t^{-1/2}) \\
+&= 2 \cdot 1/2t^{-3/2} \cdot f_X(-t^{1/2}) \\
+&= \frac{1}{\sqrt{t^3}} \cdot \frac{1}{\sqrt{2\pi/a^2}}\exp\left(-\frac{(-t^{-1/2})^2}{2/a^2}\right) \\
+&= \frac{|a|}{\sqrt{2\pi t^3}}\exp\left(-\frac{a^2}{2t}\right) \\
+\end{aligned}
+$$
+
+This corresponds to the first hitting time distribution.
+
+## Exercise 8.18
+Show that the first hitting time $T_a$ has the same distribution as $a^2T_1$.
+
+\soln $a^2 T_1$ is the time for a process to hit 1, scaled by $a^2$. Assuming that the CDFs are equal:
+$$
+P(T_a \le t) = P(a^2 T_1 \le t) = P(T_1 \le t/a^2)
+$$
+
+Differentiating with respect to $t$:
+$$
+\begin{aligned}
+\frac{\partial}{\partial t} P(T_a \le t) &= \frac{\partial}{\partial t}P(T_1 \le t/a^2) \\
+&= \frac{1}{a^2} f_{T_1}(t/a^2) \\
+&= \frac{1}{a^2} \cdot \frac{1}{\sqrt{2\pi (t/a^2)^3}} \exp\left(-\frac{1^2}{2t/a^2}\right) \\
+&= \frac{1}{a^2} \cdot \frac{|a^3|}{\sqrt{2\pi t^3}} \exp\left(-\frac{a^2}{2t}\right) \\
+&= \frac{|a|}{\sqrt{2\pi t^3}}\exp\left(-\frac{a^2}{2t}\right)
+\end{aligned}
+$$
+
+## Exercise 8.19
+Find the mean and variance of the maximum value of standard Brownian motion on [0,t].
+
+\soln Let $M_t$ be the maximum of the standard Brownian motion on [0,t], and let $a>0$. We can split the event $\{M_t>a\}$ into 2 possibilities: either $B_t$ is greater than $a$ at time $t$ or $B_t$ is less than $a$ at time $t$. If at time $t$ the Brownian motion exceeds $a$, then it's a certainty that $M_t > a$, so $\{B_t>a\}$ implies $\{M_t > a\}$, so:
+$$
+\{M_t > a\} = \{M_t > a, B_t > a\} \cup \{M_t>a, B_t \le a\} \\
+= \{B_t > a\} \cup \{M_t>a, B_t \le a\} 
+$$
+
+In the second event, consider a time $0 < t^* \le t$ where $B_{t^*}$ hit $a$, then $B_t$ finishes at $t$ under the level $a$. By the reflection principle, the path of the Brownian motion on the interval $[t^*, t]$ that finishes below $a$ corresponds to a path that finishes at least $a$ at time $t$, which gives $\{M_t > a, B_t \le a\}$ as corresponding to the same event $\{\tilde{B_t} \ge a\} = B_t > a$.
+$$
+\begin{gathered}
+P(M_t > a) = P(B_t > a) + P(B_t > a) = 2P(B_t>a)\\
+P(M_t > a) = 2 \int_a^\infty \frac{1}{\sqrt{2\pi t}} \exp\left(-\frac{x^2}{2t}\right) dx \\
+P(M_t = a) = \frac{\partial}{\partial a} [1-P(M_t > a)] = -2\frac{\partial}{\partial a} \int_a^\infty \frac{1}{\sqrt{2\pi t}} \exp\left(-\frac{x^2}{2t}\right) dx \\
+= -2\left[0 - \frac{1}{\sqrt{2\pi t}} \exp\left(-\frac{x^2}{2t}\right)\right] \\
+= \sqrt{\frac{2}{\pi t}} \exp\left(-\frac{x^2}{2t}\right), x > 0
+\end{gathered}
+$$
+This is the distribution for the absolute value of the Brownian motion path, $|B_t|$.
+
+An alternative formulation draws on the already calculated hitting time distribution $T_a$. The event $\{M_t > a\}$ corresponds to the hitting time being prior to $t$, so this event is $\{T_a < t\}$:
+
+$$
+P(M_t >a ) = P(T_a < t) \\
+= \int_0^t \frac{a}{\sqrt{2\pi s^3}}\exp\left(-\frac{a^2}{2s}\right) ds
+$$
+Let $a^2/s \Rightarrow x^2/t$. Then $s = (a^2t)x^{-2} \Rightarrow ds = -2(a^2t)x^{-3}\,dx$, and $x^2 = a^2t/s$,
+$$
+\begin{aligned}
+x^+ &= \sqrt{\lim_{s \rightarrow t} \frac{a^2t}{s}} = \sqrt{a^2} = a \\
+x^- &= \sqrt{\lim_{s \rightarrow 0} \frac{a^2t}{s}} = \infty
+\end{aligned}
+$$
+
+Substituting:
+$$
+\begin{gathered}
+P(M_t > a) = \int_{x=\infty}^{x=a} \frac{a}{\sqrt{2\pi}} (a^2tx^{-2})^{-3/2}\exp\left(-\frac{x^2}{2t}\right) \cdot -2a^2tx^{-3}\, dx \\
+= -2\int_{x=\infty}^{x=a}  \frac{1}{\sqrt{2\pi}}\exp\left(-\frac{x^2}{2t}\right) \cdot a^{-3}t^{-3/2}x^{3}a^2tx^{-3}\, dx \\
+= 2\int_{a}^{\infty} \frac{1}{\sqrt{2\pi t}}\exp\left(-\frac{x^2}{2t}\right)\, dx
+\end{gathered}
+$$
+This is the same expression as the CDF from above.
+
+$$
+\begin{aligned}
+E(M_t) &= E(|B_t|) \\
+&= \int_0^\infty \sqrt{\frac{2}{\pi t}} x\exp\left(-\frac{x^2}{2t}\right)\, dx \\
+&= \sqrt{\frac{2}{\pi t}}\int_0^\infty x\exp\left(-\frac{x^2}{2t}\right)\, dx 
+\end{aligned}
+$$
+Let $u = x^2/2, du = xdx$:
+
+$$
+\begin{aligned}
+E(M_t) &= \sqrt{\frac{2}{\pi t}}\int_0^\infty \exp\left(-u/t\right)\, du \\
+&= -t\sqrt{\frac{2}{\pi t}} \exp(-u/t)|_{0}^\infty \\
+&=\sqrt{\frac{2t}{\pi}} 
+\end{aligned}
+$$
+To get the variance:
+$$
+\begin{aligned}
+\Var(M_t) &= \Var(|B_t|)\\
+&= E(|B_t|^2) - E(|B_t|)^2 \\
+&= E(B_t^2) - E(|B_t|)^2 \\
+&= [\Var(B_t) + E(B_t)^2] - E(|B_t|)^2 \\
+&= t - \frac{2t}{\pi} \\
+&= t\left(1 - \frac{2}{\pi}\right)
+\end{aligned}
+$$
+
+## Exercise 8.20
+Use the reflection principle to show
+$$
+P(M_t \ge a, B_t \le a-b) = P(B_t \ge a+b), \,\text{for }a,b>0.
+$$
+
+\soln Since $T_a: \inf\{t \ge 0: B_t \ge a\}$ is a hitting time, we can apply the reflection principle. 
+
+Consider the process
+$$
+\tilde{B_t} = \begin{cases}
+B_t & t < T_a \\
+2a-B_t & t \ge T_a
+\end{cases}
+$$
+Consider the case that this process hits level $a$ by time $t$ and is at most $a-b$ at time $t$. Then, the event $\{M_t \ge a, B_t \le a-b\}$ corresponds to the event $\{\tilde{B_t} \ge a+b\}$ (which is the same distance $b$ from line $a$, reflected the other direction).
+
+## Exercise 8.21
+From standard Brownian motion, let $X_t$ be the process defined by
+$$
+X_t = \begin{cases}
+B_t, &\text{if }t < T_a, \\
+a, &\text{if }t \ge T_a
+\end{cases}
+$$
+where $T_a$ is the first hitting time of $a>0$. The process $(X_t)_{t\ge 0}$ is called _Brownian motion absorbed at a_. The distribution of $X_t$ has discrete and continuous parts.
+
+(a) Show
+$$
+P(X_t = a) = \frac{2}{\sqrt{2 \pi t}}\int_a^\infty e^{-x^2/2t}\, dx
+$$
+
+\soln 
+$$
+P(X_t = a) = P(X_t = a | T_a > t) P(T_a > t) + P(X_t = a | T_a \le t) P(T_a \le t) \\
+= 0\cdot P(T_a > t) + 1 \cdot P(T_a \le t) \\
+= P(T_a \le t) \\
+= \frac{2}{\sqrt{2 \pi t}}\int_a^\infty e^{-x^2/2t}\, dx
+$$
+
+(b) For $x < a$, show
+$$
+P(X_t \le x) = P(B_t \le x) - P(B_t \le x-2a) = \frac{1}{\sqrt{2\pi t}}\int_{x-2a}^x e^{-z^2/2t}\, dz
+$$
+
+\soln
