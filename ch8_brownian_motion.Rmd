@@ -804,10 +804,13 @@ $$
 
 \soln 
 $$
-P(X_t = a) = P(X_t = a | T_a > t) P(T_a > t) + P(X_t = a | T_a \le t) P(T_a \le t) \\
+\begin{gathered}
+P(X_t = a)\\
+= P(X_t = a | T_a > t) P(T_a > t) + P(X_t = a | T_a \le t) P(T_a \le t) \\
 = 0\cdot P(T_a > t) + 1 \cdot P(T_a \le t) \\
 = P(T_a \le t) \\
 = \frac{2}{\sqrt{2 \pi t}}\int_a^\infty e^{-x^2/2t}\, dx
+\end{gathered}
 $$
 
 (b) For $x < a$, show
@@ -815,4 +818,105 @@ $$
 P(X_t \le x) = P(B_t \le x) - P(B_t \le x-2a) = \frac{1}{\sqrt{2\pi t}}\int_{x-2a}^x e^{-z^2/2t}\, dz
 $$
 
+\soln In order for the process to be at most $x$ at time $t$, the process can't have hit $a$, so $M_t < a$. We are therefore looking for the joint probability that the process is under $a$ at all times and is at most $x$ at time $t$.
+
+$$
+P(X_t \le x) = P(B_t \le x, M_t < a)
+$$
+Examine the event $\{B_t \le x\}$ for a standard Brownian motion. If $B_t < x$, then the process could have either hit $a$ or stayed under $a$ until time $t$. These two cases are disjoint:
+$$
+\begin{gathered}
+P(B_t \le x) = P(B_t \le x, M_t < a) + P(B_t \le x, M_t \ge a) \\
+P(B_t \le x, M_t < a) = P(B_t \le x) - P(B_t \le x, M_t \ge a)
+\end{gathered}
+$$
+Plugging into the previous equality:
+$$
+\begin{aligned}
+P(X_t \le x) &= P(B_t \le x, M_t < a) \\
+&= P(B_t \le x) - P(B_t \le x, M_t \ge a) \\
+&= P(B_t \le x) - P(B_t \ge a + (a-x)) \\
+&= P(B_t \le x) - P(B_t \ge 2a - x) \\
+&= P(B_t \le x) - P(B_t \le x-2a)
+\end{aligned}
+$$
+
+The last equality is due to the reflection of $B_t$ over the $x$-axis. This probability is:
+$$
+P(B_t \le x) - P(B_t \le x -2a) = \int_{x-2a}^x \frac{1}{\sqrt{2\pi t}}\exp(-x^2/2t) \, dx
+$$
+
+## Exercise 8.22
+Let $Z$ be the smallest zero of the standard Brownian motion past $t$. Show that
+$$
+P(Z\le z) = \frac{2}{\pi} \arccos\sqrt{\frac{t}{z}}, \, \text{for }z > 0
+$$
+
+\soln Let $z_{t,z} = \frac{2}{\pi} \arccos \sqrt{\frac{t}{z}}$ be the probability that there is at least 1 zero in the interval $(t,z)$. If there are no zeros in the interval $(t,z)$, then $Z > z$.
+
+$$
+P(Z \le z) = 1- P(Z \ge z) = 1 - (1 - z_{t,z}) = \frac{2}{\pi} \arccos\sqrt{\frac{t}{z}}
+$$
+
+## Exercise 8.23 NOT DONE
+Let $0 < r < s < t$.
+
+(a) Assume that standard Brownian motion is not zero in $(r,s)$. Find the probability that standard Brownian motion is not zero in $(r,t)$.
+
+\soln Let $\tilde{Z}_{a,b}$ be the event that the Brownian motion is not 0 at any time in the interval $(a,b)$. Then this probability is:
+$$
+P(\tilde Z_{r,t} | \tilde Z_{r,s}) = \frac{P(\tilde Z_{r,t} \cap \tilde Z_{r,s})}{P(\tilde Z_{r,s})}
+$$
+
+## Exercise 8.24
+Derive the mean and variance of geometric Brownian motion.
+
+\soln Let $G_t = G_0e^{\mu t + \sigma B_t}$. Using the MGF of the Normal distribution, we have
+$$
+M_{B_t}(\sigma) = E(e^{\sigma B_t}) = e^{\mu t + t\sigma^2/2} = e^{\sigma^2t/2}
+$$
+Thus the expectation is:
+$$
+E(G_t) = E\left(G_0e^{\mu t + \sigma B_t}\right) = G_0 e^{\mu t} E\left(e^{\sigma B_t}\right) \\
+= G_0 e^{\mu t+\sigma^2t/2}
+$$
+
+Variance:
+$$
+\Var(G_t) = E(G_t^2) - E(G_t)^2 \\
+E(G_t^2) = E\left[G_0^2e^{2(\mu t + \sigma B_t)}\right] \\
+= G_0^2e^{2\mu t}E\left[e^{2\sigma B_t}\right] \\
+= G_0^2e^{2\mu t} M_{B_t}(2\sigma)\\
+= G_0^2e^{2\mu t} e^{2\sigma^2t} \\
+\Var(G_t) = G_0^2 \left[e^{2 \mu t}e^{2\sigma^2 t} - e^{2\mu t}e^{ \sigma^2 t}\right] \\
+= G_0^2e^{2\mu t+\sigma^2t}\left[e^{\sigma^2 t} - 1\right]
+$$
+
+## Exercise 8.25
+The price of a stock is modeled with a geometric Brownian motion with drift $\mu = -0.25$ and volatility $\sigma = 0.4$. The stock currently sells for \$35. What is the probability that the price will be at least \$40 in 1 year?
+
 \soln
+$$
+P(G_1 > 40) = P(35e^{-0.25(1) + 0.4B_1} > 40) \\
+= P(e^{-0.25 + 0.4B_1} > 40/35) \\
+= P(-0.25 + 0.4B_1 > \log (40/35)) \\
+= P\left(B_1 > \frac{0.25 + \log(40/35)}{0.4}\right) \approx 0.169
+$$
+
+```{r eval=FALSE, include=FALSE}
+exercise_8_25 <- function() {
+  n <- 1000
+  t <- 1
+  bm <- c(0, cumsum(rnorm(n, 0, sqrt(t/n))))
+  xs <- seq(0,t,length = n+1)
+  
+  drift <- -0.25
+  vol <- 0.4
+  initval <- 35
+  geometric_motion <- initval * exp(drift*xs + vol*bm)
+  geometric_motion[n]
+}
+mean(replicate(1e4, exercise_8_25()) > 40)
+```
+
+## Exercise 8.26
