@@ -8,6 +8,7 @@ date: '2022-05-30'
 \newcommand{\soln}{\textbf{Solution:}}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
 ```
 
 ```{r brownian, eval=FALSE, include=FALSE}
@@ -897,26 +898,89 @@ The price of a stock is modeled with a geometric Brownian motion with drift $\mu
 
 \soln
 $$
+\begin{gathered}
 P(G_1 > 40) = P(35e^{-0.25(1) + 0.4B_1} > 40) \\
 = P(e^{-0.25 + 0.4B_1} > 40/35) \\
 = P(-0.25 + 0.4B_1 > \log (40/35)) \\
 = P\left(B_1 > \frac{0.25 + \log(40/35)}{0.4}\right) \approx 0.169
+\end{gathered}
 $$
 
 ```{r eval=FALSE, include=FALSE}
-exercise_8_25 <- function() {
-  n <- 1000
-  t <- 1
-  bm <- c(0, cumsum(rnorm(n, 0, sqrt(t/n))))
-  xs <- seq(0,t,length = n+1)
+# returns one sample path of geometric brownian motion
+geom_bm <- function(t, mu, sigma, g_0) {
+  steps <- 1000
+  bm <- c(0, cumsum(rnorm(steps, 0, sqrt(t/steps))))
+  xs <- seq(0, t, length = steps+1)
   
-  drift <- -0.25
-  vol <- 0.4
-  initval <- 35
-  geometric_motion <- initval * exp(drift*xs + vol*bm)
-  geometric_motion[n]
+  g_0 * exp(mu * xs + sigma * bm)
 }
-mean(replicate(1e4, exercise_8_25()) > 40)
+
+exercise_8_25 <- function(nsims, t, mu, sigma, g_0) {
+  res <- numeric(nsims)
+  
+  # simulate
+  for (i in 1:nsims) {
+    res[i] <- last(geom_bm(t, mu, sigma, g_0))
+  }
+  res
+}
+
+(exercise_8_25(nsims=1e4, t=1, mu=-0.25, sigma=0.4, g_0=35) > 40) %>% mean
 ```
 
 ## Exercise 8.26
+For the stock price model in Exercise 8.25, assume that an option is available to purchase the stock in six months for \$40. Find the expected payoff of the option.
+
+\soln Let the price of the stock in half a year be $G_{0.5}$. Then, the expected payoff of the option is:
+
+$$
+\begin{gathered}
+E(\max\{G_{0.5}-40,0\}) = G_0 e^{t(\mu + \sigma^2/2)} P\left(Z > \frac{\beta - \mu t}{\sqrt{t}}\right) \\ - K P\left(Z > \frac{\beta}{\sqrt{t}}\right)
+\end{gathered}
+$$
+
+Calculating $\beta$:
+$$
+\beta = (\ln (K/G_0) - \mu t ) / \sigma = (\ln(40/35) - (-0.25)(0.5))/0.4 = (\log (8/7) + 0.125)/0.4) = 2.5\log(8/7) + 0.3125
+$$
+
+Then the expected payoff is:
+$$
+35 \exp\left(0.5(-0.25+0.4^2/2\right) P\left(Z > \frac{\beta - 0.4(0.5)}{\sqrt{0.5}}\right) - 40P\left(Z > \frac{\beta }{\sqrt{0.5}}\right) \\
+\approx 1.272
+$$
+
+```{r 8.25, eval=FALSE, include=FALSE}
+# price_of_option
+exercise_8_26_theoretical <- function(t, mu, sigma, g_0, K) {
+  beta <- 1/sigma * (log(K/g_0) - mu *t)
+  price_of_option <- g_0 * exp(t * (mu + sigma^2/2)) * (1-pnorm((beta - sigma * t) / sqrt(t))) - K * (1-pnorm(beta / sqrt(t)))
+  
+  price_of_option
+}
+
+# simulate
+exercise_8_26_sim <- function(nsims, t, mu, sigma, g_0, K) {
+  # first simulate 1000 stock prices
+  g_t <- numeric(nsims)
+  for (i in 1:nsims) {
+    g_t[i] <- last(geom_bm(t, mu, sigma, g_0))
+  }
+  
+  # expected payoff: E(max(g_t - k, 0))
+  pmax(g_t - K, 0) %>% mean
+}
+
+exercise_8_26_theoretical(t=0.5, mu=-0.25, sigma=0.4, g_0=35, K=40)
+exercise_8_26_sim(nsims=1000, t=0.5, mu=-0.25, sigma=0.4, g_0=35, K=40)
+```
+
+## Exercise 8.27
+Assume that $Z_0, Z_1, \dots$ is a branching process whose offspring distribution has mean $\mu$. Show that $Z_n/\mu^n$ is a martingale.
+
+\soln To show that $Z_n/\mu^n$ is a martingale, we must show that the martingale property holds and the absolute expectation is bounded for all $n$. Let $0 \le t < n$ be a time before time $n$.
+
+$$
+E(Z_n/\mu^n | Z
+$$
