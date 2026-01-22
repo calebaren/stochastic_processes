@@ -979,8 +979,13 @@ exercise_8_26_sim(nsims=1000, t=0.5, mu=-0.25, sigma=0.4, g_0=35, K=40)
 ## Exercise 8.27
 Assume that $Z_0, Z_1, \dots$ is a branching process whose offspring distribution has mean $\mu$. Show that $Z_n/\mu^n$ is a martingale.
 
-\soln To show that $Z_n/\mu^n$ is a martingale, we must show that the martingale property holds and the absolute expectation is bounded for all $n$. Let $0 \le t < n$ be a time before time $n$.
+\soln To show that $Z_n/\mu^n$ is a martingale, we must show that the martingale property holds and the absolute expectation is bounded for all $n$. Let $0 \le m < n$ be a time before time $n$.
 
+Using LOTE and referencing Dobrow 4.2:
 $$
-E(Z_n/\mu^n | Z
+E(\frac{Z_n}{\mu^n}\mid \frac{Z_{m}}{\mu^{m}} \text{ for all } 1 \le m < n) = E(\frac{1}{\mu^n}\sum_{i=1}^{\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1}}X_i \mid \frac{Z_{n-1}}{\mu^{n-1}}) \\
+= \frac{1}{\mu^n} \sum_{i=1}^{\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1}} E(X_i \mid \frac{Z_{n-1}}{\mu^{n-1}}) \\
+= \frac{1}{\mu^n} \sum_{i=1}^{\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1}} E(X_i ) \\
+= \frac{1}{\mu^n} \cdot \left(\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1} \right) \cdot\mu \\
+= \frac{Z_{n-1}}{\mu^{n-1}}
 $$
