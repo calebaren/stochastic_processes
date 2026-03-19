@@ -6,16 +6,16 @@ date: '2022-05-30'
 \newcommand{\Var}{\textrm{Var}}
 \newcommand{\Cov}{\textrm{Cov}}
 \newcommand{\soln}{\textbf{Solution:}}
+\newcommand{\mmiddle}{\,\middle|\,}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 ```
 
 ```{r brownian, eval=FALSE, include=FALSE}
-wiener_process <- function(t) {
+wiener_process <- function(t, n=1000) {
   # time t
   # steps n
-  n <- 1000
   bm <- c(0, cumsum(rnorm(n, 0, sqrt(t/n))))
   steps <- seq(0,t,length = n+1)
   bm
@@ -983,9 +983,106 @@ Assume that $Z_0, Z_1, \dots$ is a branching process whose offspring distributio
 
 Using LOTE and referencing Dobrow 4.2:
 $$
-E(\frac{Z_n}{\mu^n}\mid \frac{Z_{m}}{\mu^{m}} \text{ for all } 1 \le m < n) = E(\frac{1}{\mu^n}\sum_{i=1}^{\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1}}X_i \mid \frac{Z_{n-1}}{\mu^{n-1}}) \\
-= \frac{1}{\mu^n} \sum_{i=1}^{\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1}} E(X_i \mid \frac{Z_{n-1}}{\mu^{n-1}}) \\
-= \frac{1}{\mu^n} \sum_{i=1}^{\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1}} E(X_i ) \\
+\begin{gathered}
+E\left(\frac{Z_n}{\mu^n}\mid \frac{Z_{m}}{\mu^{m}}, 1 \le m < n\right) \\
+= E\left(\frac{1}{\mu^n}\sum_{i=1}^{Z_{n-1}/{\mu^{n-1}} \cdot \mu^{n-1}}X_i \mmiddle \frac{Z_{n-1}}{\mu^{n-1}}\right) \\
+= \frac{1}{\mu^n} \sum_{i=1}^{Z_{n-1}/{\mu^{n-1}} \cdot \mu^{n-1}} E\left(X_i \mmiddle \frac{Z_{n-1}}{\mu^{n-1}}\right) \\
+= \frac{1}{\mu^n} \sum_{i=1}^{Z_{n-1}/{\mu^{n-1}} \cdot \mu^{n-1}} E(X_i ) \\
 = \frac{1}{\mu^n} \cdot \left(\frac{Z_{n-1}}{{\mu^{n-1}}} \cdot \mu^{n-1} \right) \cdot\mu \\
 = \frac{Z_{n-1}}{\mu^{n-1}}
+\end{gathered}
 $$
+
+Absolute expectation:
+$$
+E(|Z_n/\mu^n|) = E(Z_n/\mu^n) = 1
+$$
+Therefore, $Z_n/\mu^n$ is a martingale.
+
+## Exercise 8.28
+An urn contains two balls--one red and one blue. At each discrete step, a ball is chosen at random from the urn. It is returned to the urn along with another ball of the same color. Let $X_n$ denote the number of red balls in the urn after $n$ draws. (Thus, $X_0=1$.) Let $R_n=X_n/(n+2)$ be the proportion of red balls in the urn after $n$ draws. Show that $R_0,R_1,\dots$ is a martingale with respect to $X_0,X_1,\dots$. The process if called *Polya's Urn*.
+
+\soln Because $R_n$ is a proportion, it is bounded between 0 and 1 almost surely. Checking the martingale condition:
+
+$$
+E(R_{m+1} | X_m) = \frac{1}{m+3} E(X_{m+1} | X_m)
+$$
+At time $m$, the probability of drawing a red ball is exactly $R_m = \frac{X_m}{m+2}$. Therefore,
+$$
+\begin{aligned}
+E(X_{m+1}|X_m) &= R_m(X_m + 1) + (1-R_m)X_m \\
+&= R_mX_m + R_m + X_m - R_mX_m = R_m + X_m \\
+&= \frac{X_m}{m+2}+X_m \\
+&= \left(\frac{m+3}{m+2}\right) X_m
+\end{aligned}
+$$
+
+Thus,
+$$
+E(R_{m+1} | X_m) = \frac{1}{m+3}\left(\frac{m+3}{m+2}\right)X_m = \frac{X_m}{m+2} = R_m
+$$
+
+By the tower property, $E(R_n | X_m) = R_m$ holds for all $0\le m < n$, so $R_n$ is a martingale with respect to $X_n$.
+
+## Exercise 8.29
+Show that $\left(B_t^3 - 3tB_t\right)_{t\ge0}$ is a martingale with respect to Brownian motion.
+
+\soln
+$$
+E\left(B_t^3 - 3tB_t \mid B_s, 0\le r < s\right) = E((B_t-B_s + B_s)^3 | B_s) - 3tE(B_t-B_s + B_s\mid B_s) \\
+$$
+For ease of notation, let $W = B_t - B_s$.
+
+$$
+E((W+ B_s)^3 | B_s) - 3tE(W + B_s\mid B_s) \\
+= E(W^3 + 3W^2B_s + 3WB_s^2 + B_s^3\mid B_s) - 3tE(W\mid B_s) - 3tE(B_s \mid B_s) \\
+= E(W^3 \mid B_s) + 3E(W^2B_s\mid B_s) + 3E(WB_s^2 \mid B_s) + E(B_s^3 \mid B_s) - 3tE(W\mid B_s) - 3tE(B_s \mid B_s \\
+= 0 + 3B_sE(W^2) + 0 + B_s^3 -0 - 3tB_s \\
+= 3B_s(t-s) + B_s^3 - 3tB_s \\
+= 3tB_s - 3sB_s + B_s^3 - 3tB_s \\
+= B_s^3 - 3sB_s
+$$
+
+To prove that this has finite absolute expectation, we use the triangle inequality.
+$$
+E\left(|B_t^3 - 3tB_t |\right) \le E(|B_t|) +  3tE(|B_t|)
+$$
+The absolute moments $E|B_t|$ and $E|B_t|^3$ are both finite since $B_t$ is Gaussian, so the absolute expectation of $B_t^3-3tB_t$ is finite. Thus, this process is a martingale with respect to Brownian motion.
+
+## Exercise 8.30 NOT DONE
+A Brownian motion with drift $\mu = 2$ and variance $\sigma^2 = 4$ is run until level $a=3$ is first hit. The process is repeated 25 times. Find the approximate probability that the average first hitting time of 25 runs is between 1 and 2.
+
+\soln $X_t = 2t + 2B_t$. The time $T$ is a stopping time. We can use CLT to find the approximate distribution for $T$, but we must know the expectation and variance of $T$.
+
+$T$ is a stopping time, so:
+$$
+E(T) = \frac{a}{\mu} = \frac{3}{2}
+$$
+So $E(T) = 3/2$. To find the variance $\Var{T}$:
+$$
+\Var(T) = \frac{a\sigma^2}{\mu^3} = \frac{3\cdot 2^2}{2^3} = \frac{3}{2}
+$$
+
+Let $\bar{T}$ denote the average hitting time after 25 runs. By CLT, $\frac{\bar{T}-\mu}{\sqrt{\sigma^2 /n}$ converges to the standard Normal, so:
+$$
+P(1 \le \bar{T} \le 2) = P\left(\frac{1-\mu}{\sqrt{\sigma^2 /n}} \le Z \le \frac{2-\mu}{\sqrt{\sigma^2 /n}}\right) = P\left(\frac{-0.5}{\sqrt{1.5/25}} \le Z \le \frac{0.5}{\sqrt{1.5/25}}\right) = 
+$$
+
+```{r}
+exercise_8_30 <- function() {
+  get_hitting_time <- function(mu, sigma, a) {
+    bm <- wiener_process(mu * 10, n=1e4)
+    t <- seq(0, mu * 10, length = 1e4+1)
+    drift_process = mu*t + sigma*bm
+    
+    # find minimum
+    idx <- which(drift_process >= a)[1]
+    t[idx]
+  }
+  t_bar <- replicate(25, get_hitting_time(2, 2, 3))
+  mean(1 <= t_bar & t_bar <= 2)
+}
+exercise_8_30()
+```
+
+## Exercise 8.31
